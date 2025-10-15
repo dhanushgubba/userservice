@@ -81,5 +81,4 @@ public class UserController {
     public Long getCountofAdmins() {
     	return userService.countAllAdmins(Role.ADMIN);
     }
-    
 }
