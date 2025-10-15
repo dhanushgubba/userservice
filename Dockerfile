@@ -1,12 +1,5 @@
-# Use JDK base image
 FROM openjdk:17-jdk-slim
-
-# Set working directory
 WORKDIR /app
-
-# Copy the JAR file built by Maven
-COPY target/*.jar app.jar
-
+COPY target/user-service-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8082
-# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
