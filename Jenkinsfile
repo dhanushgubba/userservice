@@ -31,16 +31,16 @@ pipeline {
             steps {
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'dockerhub',
+                        credentialsId: 'dockerhub',   // make sure Jenkins credential ID matches
                         usernameVariable: 'DOCKER_USERNAME',
                         passwordVariable: 'DOCKER_PASSWORD'
                     )
                 ]) {
                     script {
                         sh """
-                            docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%
-                            docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} %DOCKER_USERNAME%/${DOCKER_IMAGE}:${DOCKER_TAG}
-                            docker push %DOCKER_USERNAME%/${DOCKER_IMAGE}:${DOCKER_TAG}
+                            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                            docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
+                            docker push $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
                         """
                     }
                 }
