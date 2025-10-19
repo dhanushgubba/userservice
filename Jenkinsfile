@@ -15,14 +15,14 @@ pipeline {
 
         stage('Build Maven') {
             steps {
-                bat 'mvn clean package -DskipTests'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 }
             }
         }
@@ -37,7 +37,7 @@ pipeline {
                     )
                 ]) {
                     script {
-                        bat """
+                        sh """
                             docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%
                             docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} %DOCKER_USERNAME%/${DOCKER_IMAGE}:${DOCKER_TAG}
                             docker push %DOCKER_USERNAME%/${DOCKER_IMAGE}:${DOCKER_TAG}
