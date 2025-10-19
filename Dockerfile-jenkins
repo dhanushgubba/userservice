@@ -1,0 +1,15 @@
+FROM jenkins/jenkins:lts
+
+# Switch to root to install packages
+USER root
+
+# Install Maven and Docker CLI
+RUN apt-get update && \
+    apt-get install -y maven docker.io && \
+    rm -rf /var/lib/apt/lists/*
+
+# Allow Jenkins user to use Docker
+RUN usermod -aG docker jenkins
+
+# Switch back to Jenkins user
+USER jenkins
