@@ -1,28 +1,47 @@
 pipeline {
     agent any
+
     environment {
-        DOCKER_USERNAME = credentials('dockerhub')
+        DOCKER_IMAGE = 'user-service'
+        DOCKER_TAG = 'latest'
     }
+
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/dhanushgubba/userservice.git'
             }
         }
-        stage('Build JAR') {
+
+        stage('Build Maven') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
+
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_USERNAME}/user-service:latest ."
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                }
             }
         }
-        stage('Push Docker Image') {
+
+        stage('Push to DockerHub') {
             steps {
-                sh "echo ${DOCKER_USERNAME_PSW} | docker login -u ${DOCKER_USERNAME_USR} --password-stdin"
-                sh "docker push ${DOCKER_USERNAME}/user-service:latest"
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    script {
+                        sh """
+                            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                            docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
+                            docker push $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        """
+                    }
+                }
             }
         }
     }
