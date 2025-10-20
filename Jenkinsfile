@@ -4,16 +4,19 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'user-service'
         DOCKER_TAG = 'latest'
+        DOCKER_USERNAME = 'dhanushgubba'
+        EC2_HOST = '13.234.113.65'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/dhanushgubba/userservice.git'
             }
         }
 
-        stage('Build Maven') {
+        stage('Build with Maven') {
             steps {
                 bat 'mvn clean package -DskipTests'
             }
@@ -43,6 +46,30 @@ pipeline {
                     }
                 }
             }
+        }
+
+        stage('Deploy to AWS EC2') {
+            steps {
+                sshagent(['aws-ec2-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${EC2_HOST} '
+                        docker pull ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} &&
+                        docker stop ${DOCKER_IMAGE} || true &&
+                        docker rm ${DOCKER_IMAGE} || true &&
+                        docker run -d -p 8082:8080 --name ${DOCKER_IMAGE} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        '
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Deployment completed successfully!'
+        }
+        failure {
+            echo '❌ Deployment failed. Check logs for errors.'
         }
     }
 }
