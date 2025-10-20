@@ -25,7 +25,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "sudo docker build -t user-service:latest ."
+                    sh "docker build -t user-service:latest ."
                 }
             }
         }
