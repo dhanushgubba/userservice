@@ -56,7 +56,7 @@ pipeline {
                         docker pull ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} &&
                         docker stop ${DOCKER_IMAGE} || true &&
                         docker rm ${DOCKER_IMAGE} || true &&
-                        docker run -d -p 8082:8080 --name ${DOCKER_IMAGE} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker run -d -p 8082:8082 --name ${DOCKER_IMAGE} ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}
                         '
                     """
                 }
