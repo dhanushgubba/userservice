@@ -25,7 +25,6 @@ pipeline {
             }
         }
 
-
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
