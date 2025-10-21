@@ -44,5 +44,19 @@ pipeline {
                 }
             }
         }
+        stage('Deploy to EC2') {
+            steps {
+                sshagent(['ec2-ssh-key']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ubuntu@<EC2-PUBLIC-IP> "
+                        docker pull $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG} &&
+                        docker stop user-service || true &&
+                        docker rm user-service || true &&
+                        docker run -d -p 8082:8082 --name user-service $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        "
+                    '''
+                }
+            }
+        }
     }
 }
