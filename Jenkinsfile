@@ -13,7 +13,7 @@ pipeline {
             }
         }
 
-        stage('Build Maven') {
+        stage('Build with Maven') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
@@ -21,9 +21,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t user-service:latest ."
-                }
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
             }
         }
 
@@ -34,21 +32,20 @@ pipeline {
                     usernameVariable: 'DOCKER_USERNAME',
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
-                    script {
-                        sh """
-                            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                            docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
-                            docker push $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        """
-                    }
+                    sh """
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker push $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
+                    """
                 }
             }
         }
+
         stage('Deploy to EC2') {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@13.233.141.98"
+                        ssh -o StrictHostKeyChecking=no ubuntu@43.204.22.237 "
                         docker pull $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG} &&
                         docker stop user-service || true &&
                         docker rm user-service || true &&
