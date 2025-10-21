@@ -43,18 +43,19 @@ pipeline {
         }
 
         stage('Deploy to EC2') {
-            steps {
-                sshagent(['ec2-ssh-key']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@43.204.22.237 "
-                        docker pull $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG} &&
-                        docker stop user-service || true &&
-                        docker rm user-service || true &&
-                        docker run -d -p 8082:8082 --name user-service $DOCKER_USERNAME/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        "
-                    '''
-                }
-            }
+    steps {
+        sshagent(['ubuntu']) {
+            sh """
+                ssh -o StrictHostKeyChecking=no ubuntu@43.204.22.237 '
+                    docker pull dhanushgubba/user-service:latest &&
+                    docker stop user-service || true &&
+                    docker rm user-service || true &&
+                    docker run -d -p 8082:8082 --name user-service dhanushgubba/user-service:latest
+                '
+            """
         }
+    }
+}
+
     }
 }
