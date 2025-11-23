@@ -45,7 +45,7 @@ pipeline {
 			steps {
 				sshagent(['ec2-ssh-key']) {
 					sh """
-					ssh -o StrictHostKeyChecking=no ubuntu@13.235.16.65 '
+					ssh -o StrictHostKeyChecking=no ubuntu@3.108.194.180 '
                     docker pull dhanushgubba/user-service:latest &&
                     docker stop user-service || true &&
                     docker rm user-service || true &&
