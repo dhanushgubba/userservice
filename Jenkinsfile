@@ -12,7 +12,6 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/dhanushgubba/userservice.git'
             }
         }
-
         stage('Build with Maven') {
             steps {
                 sh 'mvn clean package -DskipTests'
